@@ -1,3 +1,6 @@
 # C++ compilation outputs
 *.o
 *.h.gch
+
+# Kate backups
+*.*~
