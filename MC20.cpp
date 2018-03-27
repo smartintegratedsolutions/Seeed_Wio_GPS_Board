@@ -42,6 +42,17 @@
 #include <stddef.h>
 #include <string.h>
 
+#include <avr/pgmspace.h>
+// Bug in Arduino IDE: having avr-libc installed on the system overrides the
+// one shipped with the IDE, which means you may end up linking against an
+// ancient one.
+#if !defined(pgm_read_ptr)
+# if !defined(pgm_read_ptr_near)
+#  define pgm_read_ptr_near(address_short) (void*)__LPM_word((uint16_t)(address_short))
+# endif
+# define pgm_read_ptr(address_short) pgm_read_ptr_near(address_short)
+#endif
+
 #include "MC20.h"
 
 const char MC20_URC_AMO[] PROGMEM = "ALARM MODE";
@@ -81,6 +92,12 @@ const char MC20_URC_P_QBAND[] PROGMEM = "QBAND";
 const char MC20_URC_P_QCGTIND[] PROGMEM = "QCGTIND";
 const char MC20_URC_P_QGURC[] PROGMEM = "QGURC";
 const char MC20_URC_P_TSMSINFO[] PROGMEM = "TSMSINFO";
+
+const char MC20_CT_ERROR[] PROGMEM = "ERROR";
+const char MC20_CT_OK[] PROGMEM = "OK";
+const char MC20_CT_P_CMEE[] PROGMEM = "CME ERROR";
+const char MC20_CT_P_CMSE[] PROGMEM = "CMS ERROR";
+
 
 /* Keep these two sorted in strcmp() order. It's easier to achieve that if
  * they're already listed in sorted order above.
@@ -124,6 +141,16 @@ PGM_P const MC20_Plus_URCs[] PROGMEM = {
     MC20_URC_P_QCGTIND,
     MC20_URC_P_QGURC,
     MC20_URC_P_TSMSINFO
+};
+
+PGM_P const MC20_Simple_CmdTerms[] PROGMEM = {
+    MC20_CT_ERROR,
+    MC20_CT_OK
+};
+
+PGM_P const MC20_Plus_CmdTerms[] PROGMEM = {
+    MC20_CT_P_CMEE,
+    MC20_CT_P_CMSE
 };
 
 bool MC20::begin(bool goOnAir) {
